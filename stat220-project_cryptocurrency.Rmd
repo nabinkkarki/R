@@ -1,0 +1,98 @@
+---
+author: "Eyuel G. Molla, Nabin K Karki, Minghao Shan"
+title: "Stat 220 Project"
+output: html_document
+---
+##Abstract
+How has the value of Bitcoin changed during its lifetime? Can we learn about the symptoms of fading cryptocurrencies and determine the success or failure of Bitcoin? Compared to older cryptocurrencies, in which period of its life cycle is Bitcoin at? These are the questions we hope to answer in our project via the use of historical cryptocurrency data. By the end of this research, we will have better insights to Bitcoins current state and its possible future. 
+
+A focus with three broad research questions of interest
+How has the value of bitcoin changed since its creation 
+What are the symptoms of fading cryptocurrencies in terms of analytical data.
+Bitcoin is in what period of its life cycle compared to other cryptocurrencies.
+The future of Bitcoin as a successful cryptocurrency.
+History and purpose of Bitcoin and other cryptocurrency.
+Use public online databases relating to cryptocurrency price history.
+Minimal data cleaning required due to preprocessed nature of the dataset.
+
+
+Interesting tags:
+btc_n_unique_addresses : The total number of unique addresses used on the Bitcoin blockchain.
+btc_n_transactions : The number of daily confirmed Bitcoin transactions.
+btc_n_transactions_total : Total number of transactions.
+btc_n_transactions_excluding_popular : The total number of Bitcoin transactions, excluding the 100 most popular addresses.
+btc_estimated_transaction_volume : The total estimated value of transactions on the Bitcoin blockchain.
+btc_estimated_transaction_volume_usd : The estimated transaction value in USD value.
+
+```{r}
+library(dplyr)
+library(ggplot2)
+library(magrittr)
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(include = TRUE)
+prices <- rbind(
+  read.csv('data/bitcoin_price.csv') %>% mutate(Currency = 'bitcoin'),
+  read.csv('data/dash_price.csv') %>% mutate(Currency = 'dash'),
+  read.csv('data/ethereum_price.csv') %>% mutate(Currency = 'ethereum'),
+  read.csv('data/iota_price.csv') %>% mutate(Currency = 'iota'),
+  read.csv('data/litecoin_price.csv') %>% mutate(Currency = 'litecoin'),
+  read.csv('data/monero_price.csv') %>% mutate(Currency = 'monero'),
+  read.csv('data/nem_price.csv') %>% mutate(Currency = 'nem'),
+  read.csv('data/neo_price.csv') %>% mutate(Currency = 'neo'),
+  read.csv('data/numeraire_price.csv') %>% mutate(Currency = 'numeraire'),
+  read.csv('data/omisego_price.csv') %>% mutate(Currency = 'omisego'),
+  read.csv('data/qtum_price.csv') %>% mutate(Currency = 'qtum'),
+  read.csv('data/ripple_price.csv') %>% mutate(Currency = 'ripple'),
+  read.csv('data/stratis_price.csv') %>% mutate(Currency = 'stratis'),
+  read.csv('data/waves_price.csv') %>% mutate(Currency = 'waves')
+) %>% mutate(
+  Date = as.Date(Date, format('%b %d, %Y')),
+  Average = (Open + Close) / 2,
+  Volume = as.numeric(Volume)
+)
+```
+
+## Price History
+
+How has the value of *Bitcoin* and other cryptocurrencies changed during their lifetimes?
+
+```{r}
+prices %>%
+  ggplot(aes(x = Date, y = Average, color = Currency)) +
+  geom_line(size = 1) +
+  ggtitle('Cryptocurrency Prices (History)') +
+  xlab('Date') +
+  ylab('Market Price (USD)') +
+  scale_y_sqrt(breaks = seq(0, 1e4, 1e3)) +
+  theme_bw(base_size = 14)
+```
+
+How are well are cryptocurrencies prices doing in 2017?
+
+```{r}
+prices %>%
+  filter(Date >= '2017-01-01') %>%
+  ggplot(aes(x = Date, y = Average, color = Currency, fill = Currency)) +
+  geom_area(size = 1) +
+  ggtitle('Cryptocurrency Prices (2017)') +
+  xlab('Date') +
+  ylab('Market Price (USD)') +
+  facet_grid(Currency ~ ., scale = 'free') +
+  scale_x_date(date_labels = '%b, %Y') +
+  theme_bw(base_size = 12) +
+  theme(axis.text.x=element_text(angle=60, hjust=1))
+```
+
+How popular is Bitcoin? We can observe this by the number of daily transactions performed.
+
+```{r}
+prices %>%
+  filter(Currency == 'bitcoin') %>%
+  ggplot(aes(x = Date, y = Volume)) +
+  geom_line(size = 0.1) +
+  geom_smooth() +
+  ggtitle('Bitcoin Daily Transactions (History)') +
+  xlab('Date') +
+  ylab('Daily Transactions') +
+  theme_bw(base_size = 14)
+```
