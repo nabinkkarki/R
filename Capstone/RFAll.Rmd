@@ -1,0 +1,46 @@
+---
+title: "Random Forest"
+author: "Nabin Kumar Karki"
+date: "October 10, 2018"
+output: pdf_document
+---
+
+```{r}
+#loading required packages.
+require(randomForest)
+require(rpart.plot)
+
+#importing the full data
+four.Species <- read.csv("~/Capstone/four.csv")
+
+##remove X1,spID 
+fourSpecies <- four.Species[-c(1,3)]
+   
+fourSpecies$SpCode<-as.factor(fourSpecies$SpCode)#change to factor
+
+set.seed(12345)
+four_all.rf<-randomForest(SpCode~.,fourSpecies, importance = TRUE) #with all variables
+four_all.rf
+
+varImpPlot(four_all.rf, type = 1) #Accuracy
+varImpPlot(four_all.rf, type = 2) #gini index
+```
+
+```{r}
+#top 8 variables are: StiLtoBlL+WtoBl1+Elev+StiScW+ LWbase +NeBasiPiL+StiL
+four_8.rf<-randomForest(SpCode~StiLtoBlL+WtoBl1+Elev+StiScW+ LWbase +NeBasiPiL+StiScWtoL1,fourSpecies, importance = TRUE)
+four_8.rf
+
+varImpPlot(four_8.rf, type = 1) #Accuracy
+varImpPlot(four_8.rf, type = 2) #gini index
+```
+
+```{r}
+#three variables
+four_3.rf<-randomForest(SpCode~StiLtoBlL+WtoBl1+Elev,fourSpecies, importance = TRUE)
+four_3.rf
+
+varImpPlot(four_3.rf, type = 1) #Accuracy
+varImpPlot(four_3.rf, type = 2) #gini index
+
+```
